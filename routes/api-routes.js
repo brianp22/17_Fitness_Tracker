@@ -1,25 +1,9 @@
-  
-// *********************************************************************************
-// api-routes.js - this file offers a set of routes for displaying and saving data to the db
-// *********************************************************************************
-
-// Dependencies
-// =============================================================
 const router = require("express").Router();
-
-// Requiring our Workout and Index models
-
 const db = require("../models");
 
-// Routes
-// =============================================================
-
-
-// getLastWorkout() GET /api/workouts
 router.get("/workouts", (req, res) => {
   db.Workout.find({})
     .then(dbWorkout => {
-      console.log(dbWorkout);
       res.json(dbWorkout);
     })
     .catch(err => {
@@ -27,7 +11,6 @@ router.get("/workouts", (req, res) => {
     });
 });
 
-// addExercise() PUT /api/workouts/:id
 router.put('/workouts/:id', (req, res) => {
   const exercise = req.body;
   db.Workout.findByIdAndUpdate(req.params.id,{
@@ -48,7 +31,6 @@ router.put('/workouts/:id', (req, res) => {
     });
 });
 
-// createWorkout() POST /api/workouts
 router.post('/workouts', (req, res) => {
   const workout = req.body;
   db.Workout.create(workout)
@@ -66,8 +48,6 @@ router.post('/workouts', (req, res) => {
 });
 
 
-
-// getWorkoutsInRange() /api/workouts/range
 router.get("/workouts/range", (req, res) => {
   db.Workout
   .find({})
