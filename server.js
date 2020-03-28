@@ -1,38 +1,38 @@
-const express = require("express");
-const logger = require("morgan");
-const mongoose = require("mongoose");
+const express = require('express');
+const mongoose = require('mongoose');
+const logger = require('morgan');
+const compression = require('compression');
 
-const PORT = process.env.PORT || 3000;
-
-const User = require("./userModel.js");
-
+// Create express server
 const app = express();
+const PORT = process.env.PORT || 8080;
 
-app.use(logger("dev"));
+app.use(logger('dev'));
 
+// Serve static content for the app from the "public" directory in the application directory.
+app.use(express.static('public'));
+
+// compress all responses
+app.use(compression());
+
+// Parse application body as JSON
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(express.static("public"));
-
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/custommethoddb", { useNewUrlParser: true });
-
-
-app.post("/submit", ({ body }, res) => {
-  const user = new User(body);
-  user.setFullName();
-  user.lastUpdatedDate();
-
-  User.create(user)
-    .then(dbUser => {
-      res.json(dbUser);
-    })
-    .catch(err => {
-      res.json(err);
-    });
+// If deployed on heroku, use the deployed database. Otherwise use the local workout database
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/workout';
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useFindAndModify: false,
+  useUnifiedTopology: true,
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`App running on http://localhost:${PORT}`);
+// routes
+app.use(require('./routes/api-routes'));
+app.use(require('./routes/html-routes'));
+
+// Start our server so that it can begin listening to client requests.
+app.listen(PORT, function() {
+  // Log (server-side) when our server has started
+  console.log(`Server listening on: http://localhost:${PORT}`);
 });
